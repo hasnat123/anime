@@ -1,24 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import Home from "./Home";
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import AnimeDetails from "./AnimeDetails";
+import Rating from "./Rating";
+import ScrollToTop from "./ScrollToTop";
+import Episodes from "./Episodes";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <ScrollToTop/>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/:id" element={<AnimeDetails/>}/>
+          <Route path="/:id/ratings" element={<Rating/>}/>
+          <Route path="/:id/episodes" element={<Episodes/>}/>
+
+        </Routes>
+      </div>
+    </Router>
+
   );
 }
 
