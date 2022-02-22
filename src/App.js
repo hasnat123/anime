@@ -15,7 +15,7 @@ function App() {
           <Route path="/:id" element={<AnimeDetails/>}/>
           <Route path="/:id/ratings" element={<Rating/>}/>
           <Route path="/:id/episodes" element={<Episodes/>}/>
-test
+test branch!
         </Routes>
       </div>
     </Router>
