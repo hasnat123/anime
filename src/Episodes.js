@@ -27,7 +27,6 @@ const Episodes = () => {
 
                 const res = await api.get(url, {cancelToken: cancelToken.token, delay: 2000});
                 setEpisodes(res.data.episodes);
-                console.log(res.data);
             }
             catch(err)
             {

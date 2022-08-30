@@ -2,7 +2,8 @@ import React, {useState, useEffect} from 'react';
 import axios from "axios";
 import delayAdapterEnhancer from 'axios-delay';
 import Anime from './Anime';
-
+import AnimeSearchList from './AnimeSearchList';
+import Footer from './components/footer'
 
 const Home = () => {
 
@@ -16,14 +17,39 @@ const Home = () => {
     const [listToggle, setListToggle] = useState(false);
     const [sortName, setSortName] = useState("Sort");
     const [sortId, setSortId] = useState("0");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [searchBar, setSearchBar] = useState(false);
+    const [pagination, setPagination] = useState();
+    const [loading, setLoading] = useState(true);
+    const [loadingNum, setLoadingNum] = useState([1, 2, 3, 4, 5, 6]);
+
+    const [animeSearchList, setAnimeSearchList] = useState([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={buttonValue} sortValue={sortValue} sortOrder={sortOrder} setPagination={setPagination} setLoading={setLoading}/>])
 
 
-
-    const url = `https://api.jikan.moe/v3/search/anime?q=&genre=${buttonValue}&order_by=${sortValue}&sort=desc&page=1`;
+    // const url = `https://api.jikan.moe/v4/anime?q=${search}&genres=${buttonValue}&order_by=${sortValue}&sort=${sortOrder}&page=1&sfw&type=tv%movie%ova%special%ona&min_score=1`;
 
     const HandleSearch = (event) =>
     {
-        setSearch(event.target.value)
+        setSearch(event.target.value);
+        
+        setSortId("0");
+        setSortName("Sort");
+        setButtonValue("0");
+        if (event.target.value === "")
+        {
+            setSortOrder("desc");
+            setSortValue("score");
+            setSearchBar(false);
+        }
+        else
+        {
+            setSortOrder("asc");
+            setSortValue("rank");
+            setSearchBar(true);
+        }
+
+        setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={buttonValue} sortValue={sortValue} sortOrder={sortOrder} setPagination={setPagination} setLoading={setLoading}/>]);
+
     }
 
     const HandleSort = (event) =>
@@ -31,7 +57,10 @@ const Home = () => {
         if (event.target.getAttribute("data-value")) setSortValue(event.target.getAttribute("data-value"));
         if (event.target.getAttribute("data-name")) setSortName(event.target.getAttribute("data-name"));
         if (event.target.getAttribute("data-name")) setSortId(event.target.getAttribute("data-id"));
+        if (event.target.getAttribute("data-order")) setSortOrder(event.target.getAttribute("data-order"));
         setListToggle(!listToggle);
+
+        setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={buttonValue} sortValue={sortValue} sortOrder={sortOrder} setPagination={setPagination} setLoading={setLoading}/>]);
     }
 
     const HandleSubmit = (event) =>
@@ -39,11 +68,19 @@ const Home = () => {
         setButtonValue(event.target.value);
         console.log(event.target.value);
         setToggle(!toggle);
+
+        setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={buttonValue} sortValue={sortValue} sortOrder={sortOrder} setPagination={setPagination} setLoading={setLoading}/>]);
+
     }
 
-    const HandleToggle = (event) =>
+    const HandleToggle = () =>
     {
         setToggle(!toggle);
+    }
+
+    const HandleLoadMore = () =>
+    {
+        setAnimeSearchList([...animeSearchList, <AnimeSearchList key={animeSearchList.length + 1} pageNum={animeSearchList.length + 1} search={search} setPagination={setPagination}/>])
     }
 
     const filterdAnime = animes.filter(anime=>{
@@ -64,9 +101,10 @@ const Home = () => {
             {
                 if (typeof cancelToken != typeof undefined) cancelToken.cancel("Canceling previous req");
                 cancelToken = axios.CancelToken.source();
-                const res = await api.get(url, {cancelToken: cancelToken.token, delay: 0});
-                setAnimes(res.data.results);
-                console.log(res.data);
+                // const res = await api.get(url, {cancelToken: cancelToken.token, delay: 0});
+                // setAnimes(res.data.data);
+                // setPagination(res.data.pagination.has_next_page);
+                // console.log(res.data);
             }
             catch(err)
             {
@@ -74,7 +112,7 @@ const Home = () => {
             }
         })();
 
-    }, [url])
+    }, [animeSearchList.length])
 
     return (
         <div>
@@ -124,10 +162,10 @@ const Home = () => {
                             <div className={listToggle ? "sort-box active" : "sort-box"}>
                                 <div className= "main" onClick={HandleSort}>{sortName}</div>
                                 <ul id={listToggle ? "sort-visible" : "sort"}>
-                                    <a href="#grid-container"><li className={sortId !== "0" ? 'option-visible' : 'option'} data-id="0" data-value="score" data-name="Ranking" onClick={HandleSort}>Ranking</li></a>
-                                    <a href="#grid-container"><li className={sortId !== "1" ? 'option-visible' : 'option'} data-id="1" data-value="members" data-name="Popularity" onClick={HandleSort}>Popularity</li></a>
-                                    <a href="#grid-container"><li className={sortId !== "2" ? 'option-visible' : 'option'} data-id="2" data-value="start_date" data-name="Newest" onClick={HandleSort}>Newest</li></a>
-                                    <a href="#grid-container"><li className={sortId !== "3" ? 'option-visible' : 'option'} data-id="3" data-value="end_date" data-name="Oldest" onClick={HandleSort}>Oldest</li></a>
+                                    <a href="#grid-container"><li className={sortId !== "0" ? 'option-visible' : 'option'} data-id="0" data-name="Ranking" data-value={searchBar ? "rank" : "score"} data-order={searchBar ? "asc" : "desc"} onClick={HandleSort}>Ranking</li></a>
+                                    <a href="#grid-container"><li className={sortId !== "1" ? 'option-visible' : 'option'} data-id="1" data-name="Popularity" data-value="members" data-order="desc" onClick={HandleSort}>Popularity</li></a>
+                                    <a href="#grid-container"><li className={sortId !== "2" ? 'option-visible' : 'option'} data-id="2" data-name="Newest" data-value="start_date" data-order="desc" onClick={HandleSort}>Newest</li></a>
+                                    <a href="#grid-container"><li className={sortId !== "3" ? 'option-visible' : 'option'} data-id="3" data-name="Oldest" data-value="start_date" data-order="asc" onClick={HandleSort}>Oldest</li></a>
                                 </ul>
                             </div>
                         </div>
@@ -137,51 +175,20 @@ const Home = () => {
             <div id="grid-container">
                 <div className='container'>
                     <div className='grid'>
-                        {filterdAnime.map((anime, i)=>{return <Anime key={i} id={anime.mal_id} title={anime.title} image_url={anime.image_url}/>})}
+                        {animeSearchList}
                     </div>
                 </div>
             </div>
 
-            <footer>
+            {pagination ?
                 <div className="container">
-                    <div className="back-to-top">
-                        <a href="#"><i className="fas fa-chevron-up"></i></a>
-                    </div>
-                    <div className="footer-content">
-                        <div className="footer-content-divider animate-bottom">
-                            <div className="meow">
-                                <h4>Follow along</h4>
-                                <ul className="social-icons">
-                                    <li>
-                                        <a href="http://google.com"><i className="fab fa-twitter"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i className="fab fa-facebook-square"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i className="fab fa-pinterest"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i className="fab fa-linkedin-in"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i className="fab fa-tripadvisor"></i></a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div className="newsletter-container">
-                                <h4>Newsletter</h4>
-                                <form className="newsletter-form">
-                                    <input type="text" className="newsletter-input" placeholder="Your email address..."/>
-                                    <button className="newsletter-btn" type="submit">
-                                        <i className="fas fa-envelope"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                    <div className="reviews-box">
+                        <div className="reviews-load-more" onClick={HandleLoadMore}><h2>Load More</h2></div>
                     </div>
                 </div>
-            </footer>
+
+            : null}
+            <Footer/>
 
 
         </div>

@@ -2,9 +2,10 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import delayAdapterEnhancer from 'axios-delay';
 import { Link } from 'react-router-dom';
+import Anime from './Anime';
 
 const Recommendations = ({id}) => {
-    let url = `https://api.jikan.moe/v3/anime/${id}/recommendations`;
+    let url = `https://api.jikan.moe/v4/anime/${id}/recommendations`;
 
     const [recommendations, setRecommendations] = useState([]);
 
@@ -23,9 +24,9 @@ const Recommendations = ({id}) => {
                 if (typeof cancelToken != typeof undefined) cancelToken.cancel("Canceling previous req");
                 cancelToken = axios.CancelToken.source();
 
-                const res = await api.get(url, {cancelToken: cancelToken.token, delay: 10000});
-                setRecommendations(res.data.recommendations.splice(0, 10));
-                console.log(res.data.recommendations);
+                const res = await api.get(url, {cancelToken: cancelToken.token, delay: 5000});
+                setRecommendations(res.data.data.splice(0, 10));
+                console.log(res.data);
             }
             catch(err)
             {
@@ -35,16 +36,14 @@ const Recommendations = ({id}) => {
     }, [url]);
 
     return (
-        <div className='recommendations'>
-            {recommendations.map((recommendation,i)=>
-            <Link to={`/${recommendation.mal_id}`}>
-                <div key={i} className="recommendation">
-                    <img src={recommendation.image_url} alt="recommendation-pic"></img>
-                    <div className="recommendation-title">{recommendation.title}</div>
-                </div>
-            </Link>
+        <div className='container key-info-container recommendations-container'>
 
-            )}
+            <h2 className='section-title'>Recommended</h2>
+            <div className="grid recommendations-grid">
+                {recommendations.map((recommendation,i)=> <Anime key={i} id={recommendation.entry.mal_id} title={recommendation.entry.title} image_url={recommendation.entry.images.jpg.image_url}/>)} 
+            </div>
+
+
         </div>
     )
 }

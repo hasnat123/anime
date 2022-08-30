@@ -2,47 +2,30 @@ import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import delayAdapterEnhancer from 'axios-delay';
 
-
-import {useSwipeable} from "react-swipeable";
+import Carousel from 'react-elastic-carousel';
 
 
 const Pictures = ({id}) => {
 
-    let url = `https://api.jikan.moe/v3/anime/${id}/pictures`;
+    let url = `https://api.jikan.moe/v4/anime/${id}/pictures`;
 
     const [pics, setPics] = useState([]);
-    const [style, setStyle] = useState(0);
-    const [clicks, setClicks] = useState(0);
+    const [popupPic, setPopupPic] = useState("");
+    const [popup, setPopup] = useState(false);
 
 
-    
 
-    const slideRight = function()
+    const HandlePopUp = () =>
     {
-        
-        if (clicks < pics.length - 8)
-        {
-            setStyle(style + 34.9);
-            setClicks(clicks + 1);
-            console.log(clicks);
-        }
+        setPopup(!popup);
     }
 
-    const slideLeft = function()
-    {
-        
-        if (clicks > 0)
-        {
-            setStyle(style - 34.9);
-            setClicks(clicks - 1);
-            console.log(clicks);
-        }
-    }
-
-    const handlers = useSwipeable({
-        onSwipedLeft: () => slideRight(),
-        onSwipedRight: () => slideLeft()
-    });
+    const breakPoints = 
+    [
+        { width: 1, itemsToShow: 2},
+        { width: 360, itemsToShow: 3},
+        { width: 550, itemsToShow: 5}
+    ]
 
     const api = axios.create({
         adapter: delayAdapterEnhancer(axios.defaults.adapter)
@@ -58,9 +41,8 @@ const Pictures = ({id}) => {
                 if (typeof cancelToken != typeof undefined) cancelToken.cancel("Canceling previous req");
                 cancelToken = axios.CancelToken.source();
 
-                const res = await api.get(url, {cancelToken: cancelToken.token, delay: 6000});
-                setPics(res.data.pictures);
-                console.log(res.data);
+                const res = await api.get(url, {cancelToken: cancelToken.token, delay: 2000});
+                setPics(res.data.data);
             }
             catch(err)
             {
@@ -72,26 +54,29 @@ const Pictures = ({id}) => {
     return (
         (pics) ?
         (
+            <>
+                <section className='container key-info-container videos-container'>
+                    <h2 className='section-title'>Pictures</h2>
 
+                    <Carousel breakPoints={breakPoints} pagination={false} >
+                        {pics.map((pic, i)=>
+                            <div key={i} className='video picture'>
+                                <img src={pic.jpg.large_image_url} alt="pic" onClick={() => {HandlePopUp(); setPopupPic(pic.jpg.large_image_url)}}></img>
+                            </div>)}
+                    </Carousel>         
 
-            <section className='container key-info-container videos-container'>
-                <h2>Pictures</h2>
+                </section>
 
-
-                <div className="arrow-container">
-                    <i class="fas fa-arrow-alt-square-left" onClick={slideLeft}></i>
-                        <div {...handlers} className="video-slider-container">
-                            <div className="video-slider" style={{transform: 'translateX(-' + style + '%)'}}>
-                                {pics.map((pic, i)=>
-                                    <div key={i} className='video picture'>
-                                        <img src={pic.large} alt="pic"></img>
-                                    </div>)}
-                            </div>
-                        </div>
-                    <i class="fas fa-arrow-alt-square-right" onClick={slideRight}></i>
+                <div className={popup ? 'video-popup-container' : 'video-popup-container-invisible'}>
+                    <div className="menu-toggle">
+                            <i className="fas fa-times" onClick={() => {HandlePopUp(); setPopupPic("")}}></i>
+                    </div>
+                    <div className="pic-popup">
+                        <img src={popupPic} alt="pic"></img>
+                    </div>
                 </div>
+            </>
 
-            </section>
         ) : (null)
     )
 }

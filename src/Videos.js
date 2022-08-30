@@ -2,44 +2,30 @@ import axios from 'axios';
 import delayAdapterEnhancer from 'axios-delay';
 import React, { useEffect, useState } from 'react';
 import ReactPlayer from "react-player/youtube";
-
-import {useSwipeable} from "react-swipeable";
+import Carousel from 'react-elastic-carousel';
 
 const Videos = ({id}) => {
 
-    let url = `https://api.jikan.moe/v3/anime/${id}/videos`;
+    let url = `https://api.jikan.moe/v4/anime/${id}/videos`;
 
     const [videos, setVideos] = useState([]);
-    const [style, setStyle] = useState(0);
-    const [clicks, setClicks] = useState(0);
+    const [popupVideo, setPopupVideo] = useState("");
+    const [popup, setPopup] = useState(false);
 
 
-    const slideRight = function()
+
+    const HandlePopUp = () =>
     {
-        
-        if (clicks < videos.length - 3)
-        {
-            setStyle(style + 31.63);
-            setClicks(clicks + 1);
-            console.log(clicks);
-        }
+        setPopup(!popup);
     }
 
-    const slideLeft = function()
-    {
-        
-        if (clicks > 0)
-        {
-            setStyle(style - 31.63);
-            setClicks(clicks - 1);
-            console.log(clicks);
-        }
-    }
+    const breakPoints =
+    [
+        { width: 1, itemsToShow: 1},
+        { width: 630, itemsToShow: 2},
+        { width: 970, itemsToShow: 3 }
+    ]
 
-    const handlers = useSwipeable({
-        onSwipedLeft: () => slideRight(),
-        onSwipedRight: () => slideLeft()
-    });
 
     const api = axios.create({
         adapter: delayAdapterEnhancer(axios.defaults.adapter)
@@ -55,9 +41,9 @@ const Videos = ({id}) => {
                 if (typeof cancelToken != typeof undefined) cancelToken.cancel("Canceling previous req");
                 cancelToken = axios.CancelToken.source();
 
-                const res = await api.get(url, {cancelToken: cancelToken.token, delay: 4000});
-                setVideos(res.data.promo);
-                console.log(res.data);
+                const res = await api.get(url, {cancelToken: cancelToken.token, delay: 1000});
+                setVideos(res.data.data.promo);
+
             }
             catch(err)
             {
@@ -69,26 +55,30 @@ const Videos = ({id}) => {
     return (
         (videos) ?
         (
-            <section className='container key-info-container videos-container'>
-                <h2>Videos</h2>
+            <>
+                <section className='container key-info-container videos-container'>
+                    <h2 className='section-title'>Videos</h2>
 
+                    <Carousel breakPoints={breakPoints} pagination={false} >
+                    {videos.map((video, i)=>
+                        <div key={i} className='video' onClick={() => {HandlePopUp(); setPopupVideo(video.trailer.url)}}>
+                            <img src={video.trailer.images.medium_image_url} alt="video" />
+                        </div>)}
+                    </Carousel>
 
-                <div className="arrow-container">
-                    <i class="fas fa-arrow-alt-square-left" onClick={slideLeft}></i>
-                        <div {...handlers} className="video-slider-container">
-                            <div className="video-slider" style={{transform: 'translateX(-' + style + '%)'}}>
-                                
-                                {videos.map((video, i)=>
-                                    <div key={i} className='video'>
-                                        <ReactPlayer className='player' title={`video ${i}`} width="100%" height="100%" controls="true" muted="true" url={`${video.video_url}`}/>
-                                    </div>)}
-                            </div>
-                        </div>
-                    <i class="fas fa-arrow-alt-square-right" onClick={slideRight}></i>
+                </section>
+
+                <div className={popup ? 'video-popup-container' : 'video-popup-container-invisible'}>
+                    <div className="menu-toggle">
+                            <i className="fas fa-times" onClick={() => {HandlePopUp(); setPopupVideo("")}}></i>
+                    </div>
+                    <div className="video-popup">
+
+                        <ReactPlayer className='player' width="100%" height="100%" controls={true} muted={true} url={popupVideo}/>
+                    </div>
                 </div>
-                
+            </>
 
-            </section>
         ) : (null)
 
     )
