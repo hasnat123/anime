@@ -62,7 +62,7 @@ body
 
 .hero
 {
-    background:  url("images/levi.png") left bottom no-repeat, url("images/rocklee.png") right bottom no-repeat, linear-gradient(to bottom right, rgba(73, 44, 221, 1), rgba(173, 56, 226));
+    background:  url("Assets/Images/levi.png") left bottom no-repeat, url("Assets/Images/rocklee.png") right bottom no-repeat, linear-gradient(to bottom right, rgba(73, 44, 221, 1), rgba(173, 56, 226));
     background-size: 40%, 40%, auto;
     height: 100vh;
 }
@@ -99,7 +99,7 @@ header
     opacity: 0;
     margin-right: -0.5rem;
 
-    background: url("../src/images/stripes.png") center no-repeat;
+    background: url("../src/Assets/Images/stripes.png") center no-repeat;
     background-clip: text;
     background-position: 100% 50%;
     animation: scale 0.5s forwards, logo 1s forwards;

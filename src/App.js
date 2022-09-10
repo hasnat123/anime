@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import Home from "./Home";
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
-import AnimeDetails from "./AnimeDetails";
-import Rating from "./Rating";
-import ScrollToTop from "./ScrollToTop";
-import Episodes from "./Episodes";
-import ReviewPage from "./ReviewPage";
-import AnimeSearchPage from './AnimeSearchPage';
+import Home from "./Routes/Home/Home";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AnimeDetails from "./Routes/AnimeDetails/AnimeDetails";
+import Rating from "./Routes/Rating/Rating";
+import Episodes from "./Routes/Episodes/Episodes";
+import ReviewPage from "./Routes/ReviewPage/ReviewPage";
+import AnimeSearchPage from './Routes/AnimeSearchPage/AnimeSearchPage';
+import { ScrollToTop } from "./helpers/helpers";
 
 function App({}) {
   
