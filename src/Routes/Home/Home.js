@@ -31,10 +31,12 @@ const Home = () => {
     const HandleSearch = (event) =>
     {
         setSearch(event.target.value);
-        
+        console.log(search);
         setSortId("0");
         setSortName("Sort");
+        setSortValue("score");
         setButtonValue("0");
+
         if (event.target.value === "")
         {
             setSortOrder("desc");
@@ -43,12 +45,12 @@ const Home = () => {
         }
         else
         {
-            setSortOrder("asc");
-            setSortValue("rank");
+            // setSortOrder("asc");
+            // setSortValue("rank");
             setSearchBar(true);
         }
 
-        setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={buttonValue} sortValue={sortValue} sortOrder={sortOrder} setPagination={setPagination} setLoading={setLoading}/>]);
+        setTimeout(()=>setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={event.target.value.length === 0 ? "" : event.target.value} buttonValue={"0"} sortValue={"score"} sortOrder={"desc"} setPagination={setPagination} setLoading={setLoading}/>]), 2000);
 
     }
 
@@ -60,16 +62,15 @@ const Home = () => {
         if (event.target.getAttribute("data-order")) setSortOrder(event.target.getAttribute("data-order"));
         setListToggle(!listToggle);
 
-        setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={buttonValue} sortValue={sortValue} sortOrder={sortOrder} setPagination={setPagination} setLoading={setLoading}/>]);
+        setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={buttonValue} sortValue={event.target.getAttribute("data-value") ? event.target.getAttribute("data-value") : sortValue} sortOrder={ event.target.getAttribute("data-order") ? event.target.getAttribute("data-order") : sortOrder } setPagination={setPagination} setLoading={setLoading}/>]);
     }
 
     const HandleSubmit = (event) =>
     {
         setButtonValue(event.target.value);
-        console.log(event.target.value);
         setToggle(!toggle);
 
-        setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={buttonValue} sortValue={sortValue} sortOrder={sortOrder} setPagination={setPagination} setLoading={setLoading}/>]);
+        setAnimeSearchList([<AnimeSearchList key={1} pageNum={1} search={search} buttonValue={event.target.value} sortValue={sortValue} sortOrder={sortOrder} setPagination={setPagination} setLoading={setLoading}/>]);
 
     }
 
